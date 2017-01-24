@@ -1,0 +1,327 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<title>Canvas Draw</title>
+		<link href="./style.css" rel="stylesheet" />
+		<script type='text/javascript' src='tinycolor.js'></script>
+		<script type="text/javascript">
+			var mycanvas, vidcanvas, vidDisplay, ctx, vctx, img, canHeight, canWidth, srcVid;
+			var wsCon, socket, cw, ch;
+
+			var leds = 32;
+			var rows = 32;
+			var ledWidth = 10;
+			var ledHeight = 10;
+			var ledSpace = 3;
+			var ledArr = new Array();
+			var previouscolor = 'red';
+
+			var url = 'ws://10.9.28.69:7890';
+
+			function init() {
+				statusServer = document.getElementById('statusServer');
+				mycanvas = document.getElementById('mycanvas');
+				vidcanvas = document.getElementById('vidCanvas');
+				vidDisplay = document.getElementById('vidDisplay');
+				ctx = mycanvas.getContext("2d");
+				ctx.canvas.width = 200;
+				ctx.canvas.height = 200;
+				
+				img = new Image();
+				img = document.getElementById("myimage");
+				img.src = './unicorn_rainbow_mod.jpg';
+				ctx.drawImage(img, 0, 0);
+				
+				//canHeight = mycanvas.scrollHeight*0.596;
+				//canWidth = mycanvas.scrollWidth*0.607;
+				
+				//canHeight = mycanvas.scrollHeight;
+				//canWidth = mycanvas.scrollWidth;
+				
+				// for the unicorn pic
+				canHeight = mycanvas.scrollHeight+110;
+				canWidth = mycanvas.scrollWidth-90;
+				
+				ledWidth = ((canWidth / leds) - ledSpace*2);
+				ledWidth = ledWidth + 2.2;
+				ledHeight = (((canHeight - ledSpace*2) / rows) - ledSpace*2);
+				ledHeight = (ledHeight / 2)-0.4;
+				log('Canvas width:' + canWidth + ' canvas height:' + canHeight);
+				log('LED width:' + ledWidth + ' height:' + ledHeight);
+				
+				srcVid = null;
+				
+				go();
+				//drawGrid('white');
+			}
+
+			function initializeSockets() {
+				// if user is running mozilla then use it's built-in WebSocket
+				window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+				wsCon = new WebSocket(url);
+
+				wsCon.onopen = function () {
+					log('Connection opened successfully');
+					updateStatusServer("OPENED");
+				};
+
+				wsCon.onerror = function (error) {
+					log('Error upon connection: ' + error);
+					updateStatusServer("ERROR");
+				};
+				
+				wsCon.onclose = function() {
+					log('Connection closed');
+					updateStatusServer("CLOSED");
+				}
+			}
+
+			function checkCamera() {
+				/*
+				// Put video listeners into place
+				var constraints = { video: true, audio: false };
+				if(navigator.getUserMedia) { // Standard
+					navigator.getUserMedia(constraints, function(stream) {
+						vidDisplay.src = stream;
+						vidDisplay.play();
+					}, onUserMediaError);
+				} else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+					navigator.webkitGetUserMedia(constraints, function(stream){
+						console.log('Video starting...');
+						vidDisplay.autoplay = true;
+						vidDisplay.src = window.webkitURL.createObjectURL(stream);
+						vidDisplay.play();
+						console.log('Video started!');
+					}, onUserMediaError);
+				}
+				else if(navigator.mozGetUserMedia) { // Firefox-prefixed
+					navigator.mozGetUserMedia(constraints, function(stream){
+						vidDisplay.src = window.URL.createObjectURL(stream);
+						vidDisplay.play();
+					}, onUserMediaError);
+				}
+				*/
+				
+				navigator.mediaDevices.enumerateDevices().then(function(devices) {
+					devices.forEach(function(device) {
+						console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+						if (device.kind === 'video') {
+							srcVid = device.deviceId;
+						}
+					});
+				})
+				.catch(function(err) {
+					console.log(err.name + ": " + err.message);
+				});
+				
+				navigator.getUserMedia ||
+					(navigator.getUserMedia = navigator.mozGetUserMedia ||
+					navigator.webkitGetUserMedia || navigator.msGetUserMedia);
+				
+				if (navigator.getUserMedia) {
+					
+					var constraints = "";
+					
+					if (srcVid === null) {
+						constraints = { video: true, audio: false };
+					}
+					else {
+						constraints = { video: { optional: [{ sourceId: srcVid }] } };
+					}
+					
+					//navigator.getUserMedia(constraints, onUserMediaSuccess, onUserMediaError);
+					navigator.getUserMedia({video: true,audio: false}, onUserMediaSuccess, onUserMediaError);
+				} else {
+					console.log('getUserMedia is not supported in this browser');
+				}
+			}
+
+			function onUserMediaSuccess(stream) {
+				videoSource = window.URL.createObjectURL(stream);
+				vidDisplay.autoplay = true;
+				vidDisplay.src = videoSource;
+				
+				cw = 320;
+				ch = 240;
+				log('width = ' + ch);
+				//vctx.width = cw;
+				//vctx.height = ch;
+			}
+
+			function onUserMediaError() {
+				console.log('There was a problem retrieving video/audio stream; did you not allow access?');
+			}
+
+			function takepic() {
+				var imgData = ctx.getImageData(0, 0, canWidth, canHeight);
+				//ctx.drawImage(vidDisplay, 0, 0, cw, ch/2);
+				ctx.drawImage(img, 0, 0, canWidth, canHeight/2); // for the unicorn pic
+				drawGrid('white');
+				//drawGrid('black');
+				
+				var packet = new Uint8ClampedArray(4 + (leds * 3) * rows);
+				var myLedArr = new Array();
+				
+				for (var key in ledArr) {
+					var x = ledArr[key].x;
+					var y = ledArr[key].y;
+					var xbuf = x + ledWidth + ledSpace;
+					var ybuf = y + (ledHeight*2 + ledSpace);
+					var xCent = Math.floor(((xbuf - x) / 2) + x);
+					var yCent = Math.floor((((ybuf - y) / 2) + y) / 2);
+					
+					//log('You are inside led ' + ledArr[key].ledNum);
+					//log('   ledx:' + x + ' ledy:' + y);
+					//log('   xbuf:' +xbuf+ ' ybuf:' +ybuf);
+					//log('   xCent:' + xCent + ' yCent:' + yCent);
+					
+					var pixel = ctx.getImageData(xCent, yCent, 1, 1);
+					var pixelData = pixel.data;
+					var red = pixelData[0];
+					var green = pixelData[1];
+					var blue = pixelData[2];
+					
+					// try to inverse the colors
+					//var color = tinycolor({r:red, g:green, b:blue});
+					//color.setAlpha(1-color.getAlpha());
+					//red = 255-color.toRgb().r;
+					//green = 255-color.toRgb().g;
+					//blue = 255-color.toRgb().b;
+					
+					if (red == 255) { red = 0; }
+					if (green == 255) { green = 0; }
+					if (blue == 255) { blue = 0; }
+					
+					packet[getDest(ledArr[key].ledNum)] = red;
+					packet[getDest(ledArr[key].ledNum)+1] = green;
+					packet[getDest(ledArr[key].ledNum)+2] = blue;
+
+					//log('    LED ' + ledArr[key].ledNum + ' r:' + red + ' g:' + green + ' b:' + blue);
+					var obj = {ledNum: ledArr[key].ledNum, r: red, g: green, b: blue};
+					myLedArr.push(obj);
+				}
+				//wsCon.send(packet.buffer);
+				//wsCon.send(packet.buffer);
+				log('done taking pic');
+				var jsonstring = JSON.stringify(myLedArr);
+				log('json array: ' + jsonstring);
+			}
+
+			function getDest(led) {
+				return led*3+4;
+			}
+			function getNextColor() {
+				if (previouscolor == 'red') {
+					previouscolor = 'blue';
+					return 'blue';
+				}
+				if (previouscolor == 'blue') {
+					previouscolor = 'green';
+					return 'green';
+				}
+				if (previouscolor == 'green') {
+					previouscolor = 'yellow';
+					return 'yellow';
+				}
+				else {
+					previouscolor = 'red';
+					return 'red';
+				}
+			}
+
+			function drawGrid(color) {
+				var ledCount = 0;
+				for (row = 0; row < rows; row++) {
+					for (col = 0; col < leds; col++) {
+						var cornerX = col * (ledWidth + ledSpace) + ledSpace;
+						var cornerY = row * (ledHeight + ledSpace) + ledSpace;
+						//ctx.fillRect(cornerX, cornerY, ledWidth, ledHeight);
+						//ctx.fillStyle = getNextColor();
+						ctx.beginPath();
+						ctx.moveTo(cornerX, cornerY);
+						ctx.lineTo(cornerX, cornerY+ledHeight);
+						ctx.lineTo(cornerX+ledWidth, cornerY+ledHeight);
+						ctx.lineTo(cornerX+ledWidth, cornerY);
+						ctx.lineTo(cornerX, cornerY);
+						ctx.lineWidth = 0.8;
+						ctx.strokeStyle = color;
+						ctx.stroke();
+						//ctx.strokeRect(cornerX, cornerY, ledWidth, ledHeight);
+						var ledObj = { x: cornerX, y: cornerY*2 , ledNum: ledCount};
+						ledArr.push(ledObj);
+						ledCount++;
+					}
+				}
+			}
+
+			function go() {
+				mycanvas.addEventListener('mouseup', function(evt) {
+					var mousePos = getMousePos(mycanvas, evt);
+					log('MOUSE POSITION x: ' + mousePos.x + ' y:' + mousePos.y);
+					for (var key in ledArr) {
+						var x = ledArr[key].x;
+						var y = ledArr[key].y;
+						var xbuf = x + ledWidth + ledSpace;
+						var ybuf = y + (ledHeight*2 + ledSpace);
+						var xCent = Math.floor(((xbuf - x) / 2) + x);
+						var yCent = Math.floor((((ybuf - y) / 2) + y) / 2);
+						
+						if (mousePos.x < xbuf && mousePos.x > x) {
+							if (mousePos.y < ybuf && mousePos.y > y) {
+								log('You are inside led ' + ledArr[key].ledNum);
+								log('   ledx:' + x + ' ledy:' + y);
+								log('   xoffset:' + evt.offsetX + ' yoffset:' + evt.offsetY/2);
+								log('   xbuf:' +xbuf+ ' ybuf:' +ybuf);
+								log('   xCent:' + xCent + ' yCent:' + yCent);
+								
+								//var pixel = ctx.getImageData(evt.offsetX, Math.floor(evt.offsetY/2), 80, 40);
+								var pixel = ctx.getImageData(xCent, yCent, 20, 10);
+								var pixelData = pixel.data;
+								var red = pixelData[0];
+								var green = pixelData[1];
+								var blue = pixelData[2];
+								log('LED ' + ledArr[key].ledNum + ' r:' + red + ' g:' + green + ' b:' + blue);
+							}
+						}
+					}
+					//log('Mouse x:' + mousePos.x + ' y:' + mousePos.y);
+				}, false);
+			}
+
+			function getMousePos(canvas, evt) {
+				var rect = canvas.getBoundingClientRect();
+				return {
+					x: evt.clientX - rect.left,
+					y: evt.clientY - rect.top
+				};
+			}
+
+			function updateStatusServer(newStat) {
+				statusServer.innerHTML = 'Status: ' + newStat;
+			}
+
+			function log(text) {
+				console.log(new Date() + ' ** ' + text);
+			}
+		</script>
+		<script type="text/javascript" src="./jquery.js"></script>
+	</head>
+	<body onload="init();">
+		<div id="statusServer">
+			Status: UNKNOWN
+		</div>
+		<div>
+			<button type="button" onclick="initializeSockets();">Initialize Socket</button>
+			<button type="button" onclick="takepic();">Take pic</button>
+			<button onclick="checkCamera();">Check for camera</button>
+		</div>
+		<div id="content">
+			<canvas id="mycanvas"></canvas>
+			<video id="vidDisplay"></video>
+			<img id="myimage">
+		</div><!-- content -->
+  </body>
+</html>
