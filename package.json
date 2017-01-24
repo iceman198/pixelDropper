@@ -1,0 +1,20 @@
+{
+  "name": "pixeldropper",
+  "version": "1.0.0",
+  "description": "drop pixels down your led display to form pictures",
+  "main": "serverChild.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "pixel",
+    "neopixel",
+    "led"
+  ],
+  "author": "Sean Dutton",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.1.4",
+    "express": "^4.14.0"
+  }
+}
