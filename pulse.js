@@ -65,7 +65,7 @@ exports.sendPulse = function (stripNum, color) {
 					red = colorPulse.toRgb().r;
 					green = colorPulse.toRgb().g;
 					blue = colorPulse.toRgb().b;
-					logger.log('debug', 'pulse.js', 'setting color on strip: ' + strip + ' led:' + led + ' actualLED: ' + curLed + ' stripNum: ' + stripNum);
+					logger.log('debug', 'pulse.js', 'setting color on strip: ' + strip + ' led:' + led + ' actualLED: ' + curLed + ' stripNum: ' + stripNum + ' to color ' + red + ',' + green + ',' + blue);
 					if (led > 0) {
 						client.setPixel(curLed, red, green, blue);
 						client.setPixel(curLed - 1, 0, 0, 0);
