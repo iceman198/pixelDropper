@@ -4,8 +4,8 @@ var tinycolor = require('./tinycolor');
 var logger = require('./logger.js');
 
 var OPC = new require('./opc')
-//var client = new OPC('localhost', 7890);
-var client = new OPC('10.9.17.63', 7890);
+var client = new OPC('localhost', 7890);
+//var client = new OPC('10.9.17.63', 7890);
 
 var filledPixArr = [];
 
