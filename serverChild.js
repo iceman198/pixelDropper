@@ -11,7 +11,7 @@ var dropperFile = 'dropper.json';
 
 var port = 8080;
 
-var pictime = 400;
+var pictime = 500;
 
 // this lets me take an argument that is passed when the script is started
 //     example: $node serverChild.js 8081 << 8081 will be the port used in this case
