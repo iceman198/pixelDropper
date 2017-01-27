@@ -33,6 +33,18 @@ exports.clearArrays = function() {
 	filledPixArr = [];
 }
 
+exports.clearDisplay = function() {
+	for (led = ledStart; led < (strips+1)*leds; led++) {
+		//console.log('Cleaning led: ' + led);
+		client.setPixel(led, 0, 0, 0);
+		client.writePixels();
+		sleep(100);
+	}
+	//console.log('Cleaning led: ' + led);
+	client.setPixel(led, 0, 0, 0);
+	client.writePixels();
+}
+
 exports.sendPulse = function (stripNum, color) {	
 	colorPulse = getColor(color);
 
