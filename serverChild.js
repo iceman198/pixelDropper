@@ -96,6 +96,7 @@ app.get('/service/:cmd', function(req, res) {
 		pulse.cleanSlate();
 		pulse.cleanSlate();
 		pulse.clearArrays();
+		res.end('SUCCESS');
 	} else if (cmd == 'reboot') {
 		console.log('reboot issued');
 		var exec  = require("child_process").exec ;
