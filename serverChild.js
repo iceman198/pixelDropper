@@ -92,6 +92,7 @@ app.get('/service/:cmd', function(req, res) {
 			res.end('ERROR: array length of ' + arr.length + ' is incorrect (' + arr + ') ' + '(' + cmd + ') ' + '(' + temp + ')');
 		}
 	} else if (cmd == 'reset') {
+		var pulse = require('./pulse');
 		pulse.cleanSlate();
 		pulse.cleanSlate();
 		pulse.clearArrays();
