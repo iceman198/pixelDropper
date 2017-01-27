@@ -40,15 +40,16 @@ app.get('/picdropper', function(req, res) {
 	for (i = 0; i < obj.length; i++) { 
 		var strip = obj[i].stripNum;
 		var color = obj[i].r + ':' + obj[i].g + ':' + obj[i].b;
-		passThroughDropper(strip, color, (i*pictime));
+		var comment = obj[i].comment;
+		passThroughDropper(strip, color, (i*pictime), comment);
 	}
 });
 
-function passThroughDropper(strip, color, time) {
+function passThroughDropper(strip, color, time, comment) {
 	setTimeout(function() {
 		var pulse = require('./pulse');
 		pulse.sendPulse(strip, color);
-		logger.log('debug', 'serverChild.js', 'passThroughDropper() ~ dropping color ' + color + ' on strip ' + strip);
+		logger.log('debug', 'serverChild.js', 'passThroughDropper() ~ dropping color ' + color + ' on strip ' + strip + ' comment: ' + comment);
 	}, time);
 }
 
