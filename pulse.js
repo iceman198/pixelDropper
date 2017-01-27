@@ -38,7 +38,7 @@ exports.clearDisplay = function() {
 		//console.log('Cleaning led: ' + led);
 		client.setPixel(led, 0, 0, 0);
 		client.writePixels();
-		sleep(100);
+		sleep(20);
 	}
 	//console.log('Cleaning led: ' + led);
 	client.setPixel(led, 0, 0, 0);
