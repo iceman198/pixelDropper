@@ -15,8 +15,8 @@ var strips = 31; // ~~ same as above ~~
 var ledStart = 0;
 var leds = 32;
 
-var speedLow = 100;
-var speedMax = 100;
+var speedLow = 50;
+var speedMax = 50;
 
 var colorPulse = tinycolor({r: 117, g: 245, b:117});
 
