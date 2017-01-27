@@ -1,5 +1,6 @@
 [
     {
+        "_comment": "Line 1",
         "stripNum": 0,
         "r": 80,
         "g": 80,
@@ -192,6 +193,7 @@
         "b": 80
     },
     {
+        "_comment": "Line 2",
         "stripNum": 0,
         "r": 80,
         "g": 80,
@@ -384,6 +386,7 @@
         "b": 80
     },
     {
+        "_comment": "Line 3",
         "stripNum": 0,
         "r": 80,
         "g": 80,
@@ -576,6 +579,7 @@
         "b": 80
     },
     {
+        "_comment": "Line 4",
         "stripNum": 0,
         "r": 80,
         "g": 80,
@@ -768,6 +772,7 @@
         "b": 80
     },
     {
+        "_comment": "Line 5",
         "stripNum": 0,
         "r": 80,
         "g": 80,
@@ -960,6 +965,7 @@
         "b": 80
     },
     {
+        "_comment": "Line 6",
         "stripNum": 0,
         "r": 80,
         "g": 80,
