@@ -69,10 +69,10 @@ exports.sendPulse = function (stripNum, color) {
 					if (led > 0) {
 						client.setPixel(curLed, red, green, blue);
 						client.setPixel(curLed - 1, 0, 0, 0);
-						logger.log('debug', 'pulse.js', 'Just set led ' + curLed + ' on and led ' + (curLed - 1) + ' off');
+						//logger.log('debug', 'pulse.js', 'Just set led ' + curLed + ' on and led ' + (curLed - 1) + ' off');
 					} else {
 						client.setPixel(curLed, red, green, blue);
-						logger.log('debug', 'pulse.js', 'Just set led ' + curLed + ' on');
+						//logger.log('debug', 'pulse.js', 'Just set led ' + curLed + ' on');
 					}
 				}
 				red = 0;
