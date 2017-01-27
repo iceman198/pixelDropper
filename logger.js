@@ -69,6 +69,6 @@ exports.log = function (level, desc, text) {
 		console.log(stringConsole);
 		writeToLogFile(stringFile);
 	} else {
-		//console.log('NOT IN LOG ** ' + stringConsole);
+		console.log('NOT IN LOG ** ' + stringConsole);
 	}
 }

@@ -7,6 +7,7 @@ var app = express();
 var logger = require('./logger');
 
 var picFile = 'unicorn.json';
+var dropperFile = 'dropper.json';
 
 var port = 8080;
 
@@ -19,7 +20,7 @@ process.argv.forEach(function (val, index, array) {
   //port = val;
 });
 
-app.get('/pic', function(req, res) {
+app.get('/picpixel', function(req, res) {
 	res.send('SUCCESS');
 	
 	var fs = require('fs');
@@ -28,15 +29,36 @@ app.get('/pic', function(req, res) {
 		var pixel = obj[i].ledNum;
 		var color = obj[i].r + ':' + obj[i].g + ':' + obj[i].b;
 		
-			mypassthrough(pixel, color, (i*pictime));
+			passThroughPixel(pixel, color, (i*pictime));
 	}
 });
 
-function mypassthrough(pixel, color, time) {
+app.get('/picdropper', function(req, res) {
+	res.send('SUCCESS');
+	
+	var fs = require('fs');
+	var obj = JSON.parse(fs.readFileSync(dropperFile, 'utf8'));
+	for (i = 0; i < obj.length; i++) { 
+		var strip = obj[i].stripNum;
+		var color = obj[i].r + ':' + obj[i].g + ':' + obj[i].b;
+		
+			passThroughDropper(strip, color, (i*pictime));
+	}
+});
+
+function passThroughDropper(strip, color, time) {
+	setTimeout(function() {
+		var pulse = require('./pulse');
+		pulse.sendPulse(strip, color);
+		logger.log('debug', 'serverChild.js', 'passThroughDropper() ~ dropping color ' + color + ' on strip ' + strip);
+	}, time);
+}
+
+function passThroughPixel(pixel, color, time) {
 	setTimeout(function() {
 		var pulse = require('./pulse');
 		pulse.setPixel(pixel, color);
-		logger.log('debug', 'serverChild.js', 'mypassthrough() ~ setting pixel ' + pixel + ' to color ' + color);
+		logger.log('debug', 'serverChild.js', 'passThroughPixel() ~ setting pixel ' + pixel + ' to color ' + color);
 	}, time);
 }
 
