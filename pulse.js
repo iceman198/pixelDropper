@@ -16,7 +16,7 @@ var ledStart = 0;
 var leds = 32;
 
 var speedLow = 20;
-var speedMax = 20;
+var speedMax = 10;
 
 var colorPulse = tinycolor({r: 117, g: 245, b:117});
 
@@ -36,7 +36,7 @@ exports.clearArrays = function() {
 exports.sendPulse = function (stripNum, color) {	
 	colorPulse = getColor(color);
 
-	logger.log('debug', 'pulse.js', '** stripNum: ' + stripNum + ' // color: ' + color);
+	logger.log('debug', 'pulse.js', 'sendPulse() ~ stripNum: ' + stripNum + ' // color: ' + color);
 
 	var speed = speedMax;
 	
