@@ -29,6 +29,10 @@ exports.setPixel = function(pixelNum, color) {
 	client.setPixel(pixelNum, red, green, blue);
 }
 
+exports.clearArrays = function() {
+	filledPixArr = [];
+}
+
 exports.sendPulse = function (stripNum, color) {	
 	colorPulse = getColor(color);
 

@@ -91,6 +91,10 @@ app.get('/service/:cmd', function(req, res) {
 		} else {
 			res.end('ERROR: array length of ' + arr.length + ' is incorrect (' + arr + ') ' + '(' + cmd + ') ' + '(' + temp + ')');
 		}
+	} else if (cmd == 'reset') {
+		pulse.cleanSlate();
+		pulse.cleanSlate();
+		pulse.clearArrays();
 	} else if (cmd == 'reboot') {
 		console.log('reboot issued');
 		var exec  = require("child_process").exec ;
