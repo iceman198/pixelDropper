@@ -11,7 +11,7 @@ var dropperFile = 'dropper.json';
 
 var port = 8080;
 
-var pictime = 50;
+var pictime = 200;
 
 // this lets me take an argument that is passed when the script is started
 //     example: $node serverChild.js 8081 << 8081 will be the port used in this case
@@ -28,8 +28,7 @@ app.get('/picpixel', function(req, res) {
 	for (i = 0; i < obj.length; i++) { 
 		var pixel = obj[i].ledNum;
 		var color = obj[i].r + ':' + obj[i].g + ':' + obj[i].b;
-		
-			passThroughPixel(pixel, color, (i*pictime));
+		passThroughPixel(pixel, color, (i*pictime));
 	}
 });
 
@@ -41,8 +40,7 @@ app.get('/picdropper', function(req, res) {
 	for (i = 0; i < obj.length; i++) { 
 		var strip = obj[i].stripNum;
 		var color = obj[i].r + ':' + obj[i].g + ':' + obj[i].b;
-		
-			passThroughDropper(strip, color, (i*pictime));
+		passThroughDropper(strip, color, (i*pictime));
 	}
 });
 
