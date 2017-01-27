@@ -114,7 +114,7 @@ app.get('/service/:cmd', function(req, res) {
 		}
 	} else if (cmd == 'reset') {
 		var pulse = require('./pulse');
-		pusle.clearDisplay();
+		pulse.clearDisplay();
 		pulse.clearArrays();
 		res.end('SUCCESS');
 	} else if (cmd == 'reboot') {
